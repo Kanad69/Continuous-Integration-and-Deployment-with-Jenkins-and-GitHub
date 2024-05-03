@@ -1,55 +1,60 @@
 pipeline {
     agent any
+
     stages {
         stage('Build') {
             steps {
-                // Use Maven to build
-                echo 'Building...'
-                sh 'mvn clean package'
+                echo 'Stage 1: Build - Build the code using Maven.'
             }
         }
+
         stage('Unit and Integration Tests') {
             steps {
-                echo 'Running tests...'
-                sh 'mvn test'
+                echo 'Stage 2: Unit and Integration Tests - Use JUnit for unit tests and Selenium for integration tests.'
             }
         }
+
         stage('Code Analysis') {
             steps {
-                echo 'Analyzing code...'
-                sh 'mvn sonar:sonar'
+                echo 'Stage 3: Code Analysis - Use SonarQube for code analysis.'
             }
         }
+
         stage('Security Scan') {
             steps {
-                echo 'Running security scan...'
-                sh 'mvn verify'
+                echo 'Stage 4: Security Scan - Use OWASP ZAP for security scanning.'
             }
         }
+
         stage('Deploy to Staging') {
             steps {
-                echo 'Deploying to staging...'
-                sh 'deploy-staging.sh'  // Example script
+                echo 'Stage 5: Deploy to Staging - Deploy the application to an AWS EC2 instance.'
             }
         }
+
         stage('Integration Tests on Staging') {
             steps {
-                echo 'Testing in staging...'
-                sh 'test-staging.sh'  // Example script
+                echo 'Stage 6: Integration Tests on Staging - Run Selenium tests on the staging environment.'
             }
         }
+
         stage('Deploy to Production') {
             steps {
-                echo 'Deploying to production...'
-                sh 'deploy-production.sh'  // Example script
+                echo 'Stage 7: Deploy to Production - Deploy the application to an AWS EC2 instance.'
             }
         }
     }
+
     post {
-        always {
-            mail to: 'kanad72@gmail.com',
-                 subject: "Build ${currentBuild.fullDisplayName}",
-                 body: "Pipeline completed. Check the results."
+        success {
+            mail to: 'your@email.com',
+                 subject: "Pipeline successful: ${currentBuild.fullDisplayName}",
+                 body: "The pipeline ${currentBuild.fullDisplayName} was successful."
+        }
+        failure {
+            mail to: 'your@email.com',
+                 subject: "Pipeline failed: ${currentBuild.fullDisplayName}",
+                 body: "The pipeline ${currentBuild.fullDisplayName} failed."
         }
     }
 }
