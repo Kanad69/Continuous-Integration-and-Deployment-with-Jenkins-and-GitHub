@@ -50,7 +50,6 @@ pipeline {
             mail to: 'kanad72@gmail.com',
                  subject: "Build ${currentBuild.fullDisplayName}",
                  body: "Pipeline completed. Check the results.",
-                 attachLog: true
         }
     }
 }
