@@ -49,12 +49,14 @@ pipeline {
         success {
             mail to: 'kanad72@gmail.com',
                  subject: "Pipeline successful: ${currentBuild.fullDisplayName}",
-                 body: "The pipeline ${currentBuild.fullDisplayName} was successful."
+                 body: "The pipeline ${currentBuild.fullDisplayName} was successful.",
+                 attachLog: true
         }
         failure {
             mail to: 'kanad72@gmail.com',
                  subject: "Pipeline failed: ${currentBuild.fullDisplayName}",
-                 body: "The pipeline ${currentBuild.fullDisplayName} failed."
+                 body: "The pipeline ${currentBuild.fullDisplayName} failed.",
+                 attachLog: true
         }
     }
 }
