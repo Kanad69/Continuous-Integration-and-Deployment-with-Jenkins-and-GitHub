@@ -1,68 +1,57 @@
 pipeline {
     agent any
-
     stages {
         stage('Build') {
             steps {
-                echo 'Stage 1: Build - Build the code using Maven.'
+                echo "Fetching the source code from the directory path specified by the environment variable."
+                echo "Compiling the code and generating any necessary artifacts."
             }
         }
-
         stage('Unit and Integration Tests') {
             steps {
-                echo 'Stage 2: Unit and Integration Tests - Use JUnit for unit tests and Selenium for integration tests.'
+                echo "Running unit tests."
+                echo "Running integration tests."
             }
         }
-
         stage('Code Analysis') {
             steps {
-                echo 'Stage 3: Code Analysis - Use SonarQube for code analysis.'
+                echo "Checking the quality of the code using a code analysis tool."
             }
         }
-
         stage('Security Scan') {
             steps {
-                echo 'Stage 4: Security Scan - Use OWASP ZAP for security scanning.'
+                echo "Identifying vulnerabilities using a security scanning tool."
             }
         }
-
-        stage('Deploy to Staging') {
-            steps {
-                echo 'Stage 5: Deploy to Staging - Deploy the application to an AWS EC2 instance.'
-            }
-        }
-
         stage('Integration Tests on Staging') {
             steps {
-                echo 'Stage 6: Integration Tests on Staging - Run Selenium tests on the staging environment.'
+                echo "Running integration tests on the staging environment."
             }
         }
-
         stage('Deploy to Production') {
             steps {
-                echo 'Stage 7: Deploy to Production - Deploy the application to an AWS EC2 instance.'
+                echo "Deploying the code to the production environment."
             }
         }
     }
-
     post {
-        always {
-            script {
-                def logFiles = findFiles(glob: 'logs/**/*')
-                def logContents = logFiles.collect { file ->
-                    "Logs from ${file.path}:\n${readFile(file.path).decodeBase64()}\n\n"
-                }.join('')
-
-                if (logContents) {
-                    mail to: 'kanad72@gmail.com',
-                         subject: "${currentBuild.result}: ${currentBuild.fullDisplayName}",
-                         body: "Pipeline ${currentBuild.fullDisplayName} status: ${currentBuild.result}\n\n${logContents}"
-                } else {
-                    mail to: 'kanad72@gmail.com',
-                         subject: "${currentBuild.result}: ${currentBuild.fullDisplayName}",
-                         body: "Pipeline ${currentBuild.fullDisplayName} status: ${currentBuild.result}\nNo log files found."
-                }
-            }
+        success {
+            emailext(
+                attachLog: true,
+                compressLog: true,
+                to: 'kanad72@gmail.com',
+                body: "The log is available at \$JENKINS_HOME/jobs/\$JOB_NAME/builds/lastSuccessfulBuild/log",
+                subject: 'Production Deployment is Successful - Jenkins'
+            )
+        }
+        failure {
+            emailext(
+                attachLog: true,
+                compressLog: true,
+                to: 'kanad72@gmail.com',
+                body: "The log is available at \$JENKINS_HOME/jobs/\$JOB_NAME/builds/lastSuccessfulBuild/log",
+                subject: "Production Deployment is Failed - Jenkins"
+            )
         }
     }
 }
