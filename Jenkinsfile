@@ -49,7 +49,7 @@ pipeline {
         always {
             mail to: 'kanad72@gmail.com',
                  subject: "Build ${currentBuild.fullDisplayName}",
-                 body: "Pipeline completed. Check the results.",
+                 body: "Pipeline completed. Check the results."
         }
     }
 }
