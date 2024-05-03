@@ -46,17 +46,23 @@ pipeline {
     }
 
     post {
-        success {
-            mail to: 'kanad72@gmail.com',
-                 subject: "Pipeline successful: ${currentBuild.fullDisplayName}",
-                 body: "The pipeline ${currentBuild.fullDisplayName} was successful.",
-                 attachmentsPattern: 'logs/**'
-        }
-        failure {
-            mail to: 'kanad72@gmail.com',
-                 subject: "Pipeline failed: ${currentBuild.fullDisplayName}",
-                 body: "The pipeline ${currentBuild.fullDisplayName} failed.",
-                 attachmentsPattern: 'logs/**'
+        always {
+            script {
+                def logFiles = findFiles(glob: 'logs/**/*')
+                def logContents = logFiles.collect { file ->
+                    "Logs from ${file.path}:\n${readFile(file.path).decodeBase64()}\n\n"
+                }.join('')
+
+                if (logContents) {
+                    mail to: 'kanad72@gmail.com',
+                         subject: "${currentBuild.result}: ${currentBuild.fullDisplayName}",
+                         body: "Pipeline ${currentBuild.fullDisplayName} status: ${currentBuild.result}\n\n${logContents}"
+                } else {
+                    mail to: 'kanad72@gmail.com',
+                         subject: "${currentBuild.result}: ${currentBuild.fullDisplayName}",
+                         body: "Pipeline ${currentBuild.fullDisplayName} status: ${currentBuild.result}\nNo log files found."
+                }
+            }
         }
     }
 }
